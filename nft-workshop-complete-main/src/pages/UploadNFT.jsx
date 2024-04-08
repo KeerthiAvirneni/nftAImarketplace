@@ -58,7 +58,7 @@ export const UploadNFT = () => {
       url: URL,
       method: "POST",
       headers: {
-        Authorization: Bearer ${process.env.REACT_APP_HUGGING_FACE_API_KEY},
+        Authorization: `Bearer ${process.env.REACT_APP_HUGGING_FACE_API_KEY}`,
         Accept: "application/json",
         "Content-Type": "application/json",
       },
@@ -68,24 +68,24 @@ export const UploadNFT = () => {
       }),
       responseType: "arraybuffer",
     });
-    const axios = require('axios'); // or import axios from 'axios'; if using ES6 module syntax
 
-const URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
+    const type = response.headers["content-type"];
+    const data = response.data;
 
-try {
-    // Send the request
-    const response = await axios({
-        url: URL,
-        method: 'GET', // or 'POST' depending on your API endpoint
-        // other configurations if needed
-    });
+    console.log(data);
 
-    // handle response
-    console.log(response);
-} catch (error) {
-    // handle error
-    console.error(error);
-}
+    const base64data = Buffer.from(data).toString('base64');
+
+    console.log(base64data);
+
+        return base64data;
+        
+
+    } catch (error) {
+        console.error("Error generating image:", error);
+        return null;
+    }
+};
 
 
     const type = response.headers["content-type"];
@@ -105,6 +105,7 @@ try {
         return null;
     }
   };
+
 
   return (
     <div>
