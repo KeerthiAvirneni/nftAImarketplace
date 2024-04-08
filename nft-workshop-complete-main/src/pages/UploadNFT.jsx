@@ -103,7 +103,7 @@ export const UploadNFT = () => {
     } catch (error) {
         console.error("Error generating image:", error);
         return null;
-    }
+    };
   };
 
 
