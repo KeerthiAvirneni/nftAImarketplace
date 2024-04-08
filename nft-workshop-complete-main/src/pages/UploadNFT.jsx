@@ -100,10 +100,9 @@ export const UploadNFT = () => {
         return base64data;
         
 
-    } catch (error) {
-        console.error("Error generating image:", error);
-        return null;
-    };
+    }catch (error) {
+      console.error("Error generating image:", error);
+      return null;
   };
 
 
