@@ -51,7 +51,7 @@ export const UploadNFT = () => {
     setMessage("Generating Image...");
 
     // You can replace this with different model API's
-    const URL = https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2;
+    const URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
     try {
     // Send the request
     const response = await axios({
@@ -68,6 +68,25 @@ export const UploadNFT = () => {
       }),
       responseType: "arraybuffer",
     });
+    const axios = require('axios'); // or import axios from 'axios'; if using ES6 module syntax
+
+const URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
+
+try {
+    // Send the request
+    const response = await axios({
+        url: URL,
+        method: 'GET', // or 'POST' depending on your API endpoint
+        // other configurations if needed
+    });
+
+    // handle response
+    console.log(response);
+} catch (error) {
+    // handle error
+    console.error(error);
+}
+
 
     const type = response.headers["content-type"];
     const data = response.data;

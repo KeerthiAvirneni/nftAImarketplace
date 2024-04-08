@@ -4,16 +4,12 @@ import * as eth from "ethers";
 import axios from "axios";
 import { NFTStorage, Blob } from "nft.storage";
 import { Contract } from "ethers";
-import { abi } from './utils'
-
-
+import { abi } from "./utils";
 
 export const BlockchainConfig = React.createContext();
 
 export const BlockchainProvider = ({ children }) => {
-
   const [currentAccount, setCurrentAccount] = useState("");
-
 
   const contr_addr = process.env.REACT_APP_CONTRACT;
   const NFT_STORAGE_TOKEN = process.env.REACT_APP_PUBLIC_NFT_STORAGE_TOKEN;
@@ -23,13 +19,13 @@ export const BlockchainProvider = ({ children }) => {
   const signer = provider.getSigner();
   const contract = new eth.Contract(contr_addr, abi, signer);
 
-
   const connectWallet = async () => {
     if (!window.ethereum) return alert("Please install MetaMask.");
-    const accounts = await window.ethereum.request({ //ethereum is a property that represents the Ethereum provider (like MetaMask)
+    const accounts = await window.ethereum.request({
+      //ethereum is a property that represents the Ethereum provider (like MetaMask)
       method: "eth_requestAccounts",
     });
-    console.log("Connected")
+    console.log("Connected");
     setCurrentAccount(accounts[0]);
     window.location.reload(); // ensures that other parts of the application are aware of the newly connected Ethereum account.
   };
@@ -39,7 +35,7 @@ export const BlockchainProvider = ({ children }) => {
     const accounts = await window.ethereum.request({ method: "eth_accounts" });
     if (accounts.length) {
       setCurrentAccount(accounts[0]);
-      console.log("Connected")
+      console.log("Connected");
     } else {
       console.log("No accounts found");
     }
@@ -50,7 +46,7 @@ export const BlockchainProvider = ({ children }) => {
       const metadata = await client.store({
         name: "ABC",
         description: "ABC",
-        image: file,
+        image: new File([`data:image/jpeg;base64,${file}`], "ai-image.jpg", { type: 'image/jpeg'}),
       });
       return metadata.data.image.href;
     } catch (error) {
@@ -58,8 +54,7 @@ export const BlockchainProvider = ({ children }) => {
     }
   };
 
-  const createNFT = async (formInput, fileUrl) => {
-    const { name, description, price } = formInput;
+  const createNFT = async (name, description, price, fileUrl) => {
     if (!name || !description || !fileUrl || !price) return;
     const data = JSON.stringify({
       name,
@@ -81,19 +76,18 @@ export const BlockchainProvider = ({ children }) => {
 
   const createSale = async (url, formInputPrice) => {
     const price = eth.utils.parseUnits(formInputPrice, "ether");
-    console.log(price)
+    console.log(price);
     try {
       const listingPrice = await contract.getListingPrice(); // fees charged by the marketplace to allow ppl upload the nft
-      console.log("Listing price - ", listingPrice)
+      console.log("Listing price - ", listingPrice);
       const transaction = await contract.createToken(url, price, {
         value: listingPrice.toString(),
-      })
-      console.log(transaction)
+      });
+      console.log(transaction);
       await transaction.wait();
       console.log(transaction);
-
     } catch (error) {
-      console.log("An error occured at the create sale function - ", error)
+      console.log("An error occured at the create sale function - ", error);
     }
   };
 
@@ -101,38 +95,55 @@ export const BlockchainProvider = ({ children }) => {
     setLoading(true);
     const data = await contract.fetchMarketItems();
     const items = await Promise.all(
-      data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
-        const tokenURI = await contract.tokenURI(tokenId);
-        const {
-          data: { image, name, description },
-        } = await axios.get(tokenURI);
-        const price = eth.utils.formatUnits(
-          unformattedPrice.toString(),
-          "ether"
-        );
+        data.map(async ({ tokenId, seller, owner, price: unformattedPrice }) => {
+            const tokenURI = await contract.tokenURI(tokenId);
 
-        image.replace("https:ipfs.io", "https://infura-ipfs.io");
-        console.log(image);
+            console.log(tokenURI)
 
-        return {
-          price,
-          tokenId: tokenId.toNumber(),
-          seller,
-          owner,
-          image,
-          name,
-          description,
-          tokenURI,
-        };
-      })
+            const newtokenURI = tokenURI.replace("https://ipfs.io", "https://cloudflare-ipfs.com");
+
+            const response = await axios.get(newtokenURI);
+            const { image, name, description } = response.data;
+            const price = eth.utils.formatUnits(
+                unformattedPrice.toString(),
+                "ether"
+            );
+
+            // Update image URL to use a CORS-enabled IPFS gateway
+            const imageUrl = image.replace("https://ipfs.io", "https://cloudflare-ipfs.com");
+            console.log(imageUrl);
+
+            return {
+                price,
+                tokenId: tokenId.toNumber(),
+                seller,
+                owner,
+                image: imageUrl,
+                name,
+                description,
+                tokenURI,
+            };
+        })
     );
     return items;
-  };
+};
 
   useEffect(() => {
     checkIfWalletIsConnect();
   }, []);
   return (
-    <BlockchainConfig.Provider value={{ fetchNFTs, uploadToIPFS, createNFT, createSale, currentAccount, checkIfWalletIsConnect, connectWallet }}>{children}</BlockchainConfig.Provider>
-  );
+    <BlockchainConfig.Provider
+      value={{
+        fetchNFTs,
+        uploadToIPFS,
+        createNFT,
+        createSale,
+        currentAccount,
+        checkIfWalletIsConnect,
+        connectWallet,
+      }}
+    >
+      {children}
+    </BlockchainConfig.Provider>
+  );
 };
