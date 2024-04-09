@@ -36,7 +36,7 @@ export const UploadNFT = () => {
     setDragLoad(false);
     const fileURL = url.replace("ipfs://", "https://ipfs.io/ipfs/");
 
-    console.log(fileURL)
+    console.log(fileURL);
 
     const urlReturned = await createNFT(name, description, price, fileURL);
 
@@ -51,60 +51,40 @@ export const UploadNFT = () => {
     setMessage("Generating Image...");
 
     // You can replace this with different model API's
-    const URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
+    const URL =
+      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2";
     try {
-    // Send the request
-    const response = await axios({
-      url: URL,
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_HUGGING_FACE_API_KEY}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      data: JSON.stringify({
-        inputs: description,
-        options: { wait_for_model: true },
-      }),
-      responseType: "arraybuffer",
-    });
+      // Send the request
+      const response = await axios({
+        url: URL,
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.REACT_APP_HUGGING_FACE_API_KEY}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify({
+          inputs: description,
+          options: { wait_for_model: true },
+        }),
+        responseType: "arraybuffer",
+      });
 
-    const type = response.headers["content-type"];
-    const data = response.data;
+      const type = response.headers["content-type"];
+      const data = response.data;
 
-    console.log(data);
+      console.log(data);
 
-    const base64data = Buffer.from(data).toString('base64');
+      const base64data = Buffer.from(data).toString("base64");
 
-    console.log(base64data);
+      console.log(base64data);
 
-        return base64data;
-        
-
+      return base64data;
     } catch (error) {
-        console.error("Error generating image:", error);
-        return null;
-    }
-};
-
-
-    const type = response.headers["content-type"];
-    const data = response.data;
-
-    console.log(data);
-
-    const base64data = Buffer.from(data).toString('base64');
-
-    console.log(base64data);
-
-        return base64data;
-        
-
-    }catch (error) {
       console.error("Error generating image:", error);
       return null;
+    }
   };
-
 
   return (
     <div>
@@ -128,9 +108,9 @@ export const UploadNFT = () => {
           CREATE YOUR NFT!
         </h1>
         <div className="mt-16">
-          <p className="font-poppins dark:text-white font-semibold text-xl animate-bounce">
+          {/* <p className="font-poppins dark:text-white font-semibold text-xl animate-bounce">
             Upload files
-          </p>
+          </p> */}
 
           <img src={image} alt="" />
           <div className="mt-12 mb-10">
@@ -185,6 +165,7 @@ export const UploadNFT = () => {
           )}
         </div>
       </div>
+        
     </div>
   );
 };

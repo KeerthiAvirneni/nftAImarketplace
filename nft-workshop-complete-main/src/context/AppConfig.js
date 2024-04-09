@@ -12,7 +12,7 @@ export const BlockchainProvider = ({ children }) => {
   const [currentAccount, setCurrentAccount] = useState("");
 
   const contr_addr = process.env.REACT_APP_CONTRACT;
-  const NFT_STORAGE_TOKEN = process.env.REACT_APP_PUBLIC_NFT_STORAGE_TOKEN;
+  const NFT_STORAGE_TOKEN = process.env.REACT_APP_NFT_STORAGE_API_KEY;
   const client = new NFTStorage({ token: NFT_STORAGE_TOKEN });
 
   const provider = new eth.providers.Web3Provider(window.ethereum);
